@@ -16,7 +16,7 @@ library(RSQLite)
 db <- dbConnect(RSQLite::SQLite(),dbname= "./BASE-R.sqlite3")
 ```
 ```{r}
-DF <- read.csv("../DATA/COVID-19-ECDPC-2020-08-11.csv")
+DF <- read.csv("./COVID-19-ECDPC-2020-08-11.csv")
 DF$dateRep <- gsub("/","-",DF$dateRep)
 DF$dateRep <- as.Date(DF$dateRep,format="%m-%d-%Y")
 str(DF$dateRep)
@@ -25,11 +25,12 @@ str(DF$dateRep)
 DF$dateRep <- as.character(DF$dateRep)
 str(DF$dateRep)
 dbWriteTable(db,"COVID",DF,overwrite=TRUE)
+dbListFields(db,"COVID")
 ```
 ```{r}
 DF <- dbGetQuery(db,"select * from  COVID where geoId ='US'")
 DF$dateRep <- as.Date(DF$dateRep)
-str(DF)
+str(DF$dateRep)
 ```
 ```{r}
 plot(DF$dateRep,DF$cases,type="b",main="US Daily COVID-19 Cases")

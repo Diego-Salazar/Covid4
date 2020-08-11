@@ -1,0 +1,43 @@
+---
+title: 'R & SQLite: A Match Made in Heaven'
+author: "David J Jackson"
+date: "8/10/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(RSQLite)
+```
+
+## Create New SQLite3 Database
+
+```{r}
+db <- dbConnect(RSQLite::SQLite(),dbname= "./BASE-R.sqlite3")
+```
+```{r}
+DF <- read.csv("../DATA/COVID-19-ECDPC-2020-08-11.csv")
+DF$dateRep <- gsub("/","-",DF$dateRep)
+DF$dateRep <- as.Date(DF$dateRep,format="%m-%d-%Y")
+str(DF$dateRep)
+```
+```{r}
+DF$dateRep <- as.character(DF$dateRep)
+str(DF$dateRep)
+dbWriteTable(db,"COVID",DF,overwrite=TRUE)
+```
+```{r}
+DF <- dbGetQuery(db,"select * from  COVID where geoId ='US'")
+DF$dateRep <- as.Date(DF$dateRep)
+str(DF)
+```
+```{r}
+plot(DF$dateRep,DF$cases,type="b",main="US Daily COVID-19 Cases")
+```
+```{r}
+dbSendQuery(db,"CREATE INDEX date ON COVID (dateRep);")
+dbListTables(db)
+dbDisconnect(db)
+```
+
+
